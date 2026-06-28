@@ -1,0 +1,1305 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* Animidades e Transições */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  .fade-in-up {
+    animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Skeleton Loading */
+  .skeleton-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .shimmer-bar {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 37%, rgba(255, 255, 255, 0.03) 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: 4px;
+  }
+
+  /* Badges de Cores para Fontes */
+  .badge-netempregos {
+    background: rgba(249, 115, 22, 0.12) !important;
+    border-color: rgba(249, 115, 22, 0.3) !important;
+    color: #fb923c !important;
+  }
+  
+  .badge-itjobs {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    color: #34d399 !important;
+  }
+  
+  .badge-landingjobs {
+    background: rgba(168, 85, 247, 0.12) !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+    color: #c084fc !important;
+  }
+  
+  .badge-cargadetrabalhos {
+    background: rgba(236, 72, 153, 0.12) !important;
+    border-color: rgba(236, 72, 153, 0.3) !important;
+    color: #f472b6 !important;
+  }
+
+  .badge-alertaemprego {
+    background: rgba(45, 212, 191, 0.12) !important;
+    border-color: rgba(45, 212, 191, 0.3) !important;
+    color: #2dd4bf !important;
+  }
+  
+  .badge-sapo {
+    background: rgba(14, 165, 233, 0.12) !important;
+    border-color: rgba(14, 165, 233, 0.3) !important;
+    color: #38bdf8 !important;
+  }
+
+  .badge-custom {
+    background: rgba(234, 179, 8, 0.12) !important;
+    border-color: rgba(234, 179, 8, 0.3) !important;
+    color: #facc15 !important;
+  }
+
+  /* Cartão de Vaga */
+  .job-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .job-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -10px rgba(59, 130, 246, 0.25);
+  }
+  
+  .job-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 12px;
+  }
+  
+  .job-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  
+  .job-card-company {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  
+  .job-card-location {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .job-card-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    line-height: 1.6;
+    background: rgba(255,255,255,0.02);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-left: 2px solid var(--accent);
+  }
+  
+  .job-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+  
+  .job-card-link {
+    color: #60a5fa;
+    font-size: 13px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  .job-card-link:hover {
+    color: #93c5fd;
+    text-decoration: underline;
+  }
+
+  /* Checkboxes */
+  .checkbox-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-main);
+    user-select: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  
+  .checkbox-label:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+  
+  .checkbox-label input[type="checkbox"] {
+    width: auto;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  /* Paginação */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 32px;
+  }
+  
+  .page-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: rgba(255,255,255,0.03);
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .page-btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.08);
+    color: #ffffff;
+    border-color: var(--text-dim);
+  }
+  
+  .page-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  }
+  
+  .page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Tabs de Navegação */
+  .tabs-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    padding: 6px;
+    border-radius: 14px;
+    width: fit-content;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tab-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .tab-btn.active {
+    background: var(--accent) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  }
+
+  /* Tabelas */
+  table.vault-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+
+  table.vault-table th {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  table.vault-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .tabs-nav {
+      width: 100%;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  }
+
+  @media (max-width: 900px) {
+    aside.card {
+      position: static !important;
+    }
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .filters-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+
+  #results-info, #cv-results-info {
+    scroll-margin-top: 100px;
+  }
+</style>
+
+<!-- NAVEGAÇÃO SPA POR TABS -->
+<div class="tabs-nav fade-in-up">
+  <button class="tab-btn active" data-tab="tab-search">🔍 Procurar Vagas</button>
+  <button class="tab-btn" data-tab="tab-cv">📄 Análise de CV (IA)</button>
+  <button class="tab-btn" data-tab="tab-sources">⚙️ Fontes Personalizadas</button>
+  <button class="tab-btn" data-tab="tab-vault">🔒 Cofre de Credenciais</button>
+</div>
+
+<!-- ========================================== -->
+<!-- TAB 1: PROCURAR VAGAS (AGREGADOR PADRÃO) -->
+<!-- ========================================== -->
+<div id="tab-search" class="tab-content active-content">
+  <div class="layout-grid">
+    <!-- COLUNA ESQUERDA: SIDEBAR DE FILTROS -->
+    <aside class="card fade-in-up" style="position: sticky; top: 90px; z-index: 10;">
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <span>🔍</span> Procurar Vagas
+      </h2>
+      
+      <form id="search-form">
+        <div style="margin-bottom: 16px;">
+          <label for="keyword">Palavra-chave</label>
+          <input type="text" id="keyword" name="keyword" placeholder="Ex: developer, frontend, marketing">
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <label for="region">Região/Cidade</label>
+          <input type="text" id="region" name="region" placeholder="Ex: Lisboa, Porto, Remoto">
+        </div>
+
+        <div id="advanced-filters-wrapper">
+          <div class="filters-grid">
+            <div style="display: flex; flex-direction: column; justify-content: space-between;">
+              <label for="contract_type" style="margin-bottom: 6px;">Tipo de Contrato</label>
+              <select id="contract_type" name="contract_type">
+                <option value="">Qualquer</option>
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="contract">Contrato</option>
+              </select>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; justify-content: space-between;">
+              <label for="modality" style="margin-bottom: 6px;">Modalidade</label>
+              <select id="modality" name="modality">
+                <option value="">Qualquer</option>
+                <option value="remote">Remoto</option>
+                <option value="hybrid">Híbrido</option>
+                <option value="onsite">Presencial</option>
+              </select>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 24px;">
+            <label class="checkbox-label" style="text-transform: none; font-weight: 500; letter-spacing: 0;">
+              <input type="checkbox" id="remote_only" name="remote_only">
+              <span>Mostrar apenas vagas 100% Remoto</span>
+            </label>
+          </div>
+
+          <!-- SELEÇÃO DE FONTES -->
+          <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 20px; margin-bottom: 24px;">
+            <label style="margin-bottom: 10px;">Fontes de Emprego</label>
+            <div class="checkbox-group" id="sources-checkbox-group">
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="NetEmpregos" checked> NetEmpregos</label>
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="ITJobs" checked> ITJobs</label>
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="LandingJobs" checked> LandingJobs</label>
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="Carga de Trabalhos" checked> Carga Trabalhos</label>
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="Alerta Emprego" checked> Alerta Emprego</label>
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="Sapo Emprego"> Sapo Emprego</label>
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="Indeed"> Indeed</label>
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="Glassdoor"> Glassdoor</label>
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="Jobted"> Jobted</label>
+              <label class="checkbox-label"><input type="checkbox" class="source-cb" value="JobLeads"> JobLeads</label>
+            </div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%;">
+          🔍 Filtrar e Pesquisar
+        </button>
+      </form>
+    </aside>
+    
+    <!-- COLUNA DIREITA: RESULTADOS -->
+    <section style="display: flex; flex-direction: column; min-height: 500px;">
+      <!-- CARD DE INFORMAÇÕES DE PESQUISA -->
+      <div id="results-info" class="card fade-in-up" style="padding: 16px 20px; margin-bottom: 20px; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 id="info-title" style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 600; color: #ffffff;">Resultados</h3>
+            <p id="info-filters" style="font-size: 13px; color: var(--text-muted); margin-top: 2px;"></p>
+          </div>
+          <span id="info-count" class="badge badge-score" style="font-size: 14px; padding: 6px 12px; border-radius: 10px;">0 vagas</span>
+        </div>
+      </div>
+
+      <!-- CONTAINER DE LISTAGEM DAS VAGAS -->
+      <div id="jobs-container">
+        <!-- ESTADO INICIAL -->
+        <div class="card fade-in-up" style="text-align: center; padding: 60px 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+          <div style="font-size: 60px;">🚀</div>
+          <h2 style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: #ffffff;">Encontra o teu próximo emprego em Portugal</h2>
+          <p style="font-size: 14px; color: var(--text-muted); max-width: 500px; line-height: 1.6;">
+            Insere palavras-chave ou localização na barra de pesquisa à esquerda. O <strong>JobHunter</strong> vai agregar ofertas em tempo real em múltiplos portais.
+          </p>
+          <button id="start-search-btn" class="btn" style="margin-top: 10px;">
+            Pesquisar Vagas de Tecnologia
+          </button>
+          
+          <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); width: 100%; max-width: 500px; text-align: left;">
+            <div style="display: flex; gap: 12px; align-items: start; background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.12); padding: 16px; border-radius: 12px;">
+              <span style="font-size: 20px; filter: drop-shadow(0 0 8px rgba(59,130,246,0.4));">🛡️</span>
+              <div>
+                <h4 style="font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 4px;">Privacidade & Segurança do JobHunter</h4>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin: 0;">
+                  Este agregador é <strong>100% privado e não recolhe dados</strong>:
+                  <ul style="margin-top: 6px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; list-style-type: disc;">
+                    <li>As tuas credenciais de login são guardadas <strong>estritamente no teu browser (localmente)</strong> e nunca são enviadas para o servidor.</li>
+                    <li>Os perfis de CV e histórico de pesquisa residem na tua <strong>base de dados SQLite dedicada</strong> e não são partilhados com terceiros.</li>
+                  </ul>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="pagination" class="pagination-container" style="display: none;"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- TAB 2: ANÁLISE DE CV COM IA (MATCH SCORE) -->
+<!-- ========================================== -->
+<div id="tab-cv" class="tab-content" style="display: none;">
+  <div class="layout-grid">
+    <!-- COLUNA ESQUERDA: CONFIGURAÇÕES E TEXTO DO CV -->
+    <aside class="card fade-in-up">
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <span>📄</span> Perfis de CV (IA)
+      </h2>
+      
+      <form id="cv-form">
+        <!-- Dropdown de perfis -->
+        <div style="margin-bottom: 16px;">
+          <label for="cv-profile-select">Selecionar Perfil Gravado</label>
+          <select id="cv-profile-select">
+            <option value="">-- Criar Novo Perfil --</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label for="cv-profile-name">Nome do Perfil</label>
+          <input type="text" id="cv-profile-name" placeholder="Ex: Programador Fullstack Python/React">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label for="cv-text-input">Texto do Currículo (CV)</label>
+          <textarea id="cv-text-input" rows="8" placeholder="Cole aqui o texto do seu CV completo, lista de tecnologias, competências e experiência..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 20px;">
+          <button type="button" id="btn-save-cv" class="btn" style="flex: 1; font-size: 13px; padding: 10px;">💾 Gravar CV</button>
+          <button type="button" id="btn-delete-cv" class="btn btn-secondary" style="flex: 1; font-size: 13px; padding: 10px; color: #ef4444; border-color: rgba(239,68,68,0.2);" disabled>🗑️ Eliminar</button>
+        </div>
+
+        <!-- Filtros opcionais de pesquisa -->
+        <h3 style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 12px;">Filtros de Pesquisa</h3>
+        
+        <div style="margin-bottom: 16px;">
+          <label for="cv-keyword">Termos Opcionais</label>
+          <input type="text" id="cv-keyword" placeholder="Se vazio, a IA infere as suas tecnologias">
+        </div>
+        
+        <div style="margin-bottom: 24px;">
+          <label for="cv-region">Região Preferencial</label>
+          <input type="text" id="cv-region" placeholder="Ex: Lisboa, Porto, Remoto">
+        </div>
+
+        <button type="button" id="btn-search-cv" class="btn" style="width: 100%;">
+          🤖 Procurar Vagas por Compatibilidade
+        </button>
+      </form>
+    </aside>
+
+    <!-- COLUNA DIREITA: VAGAS ORDENADAS POR COMPATIBILIDADE -->
+    <section style="display: flex; flex-direction: column; min-height: 500px;">
+      <div id="cv-results-info" class="card fade-in-up" style="padding: 16px 20px; margin-bottom: 20px; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 600; color: #ffffff;">Recomendações por IA</h3>
+            <p id="cv-info-desc" style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Vagas ordenadas por compatibilidade de competências</p>
+          </div>
+          <span id="cv-info-count" class="badge badge-score" style="font-size: 14px; padding: 6px 12px;">0 vagas</span>
+        </div>
+      </div>
+
+      <div id="cv-jobs-container">
+        <!-- ESTADO INICIAL -->
+        <div class="card fade-in-up" style="text-align: center; padding: 60px 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+          <div style="font-size: 60px;">🤖</div>
+          <h2 style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: #ffffff;">Pesquisa Semântica Baseada no seu CV</h2>
+          <p style="font-size: 14px; color: var(--text-muted); max-width: 500px; line-height: 1.6;">
+            Grave ou selecione um perfil de currículo na barra lateral. O <strong>JobHunter</strong> vai cruzar semanticamente as competências do seu CV com as ofertas em tempo real e calcular uma percentagem de correspondência exata.
+          </p>
+        </div>
+      </div>
+
+      <div id="cv-pagination" class="pagination-container" style="display: none;"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- TAB 3: GERIR FONTES PERSONALIZADAS -->
+<!-- ========================================== -->
+<div id="tab-sources" class="tab-content" style="display: none;">
+  <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+    <!-- CARD 1: ADICIONAR FONTE -->
+    <div class="card fade-in-up">
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px;">⚙️ Adicionar Fonte Personalizada (Web Scraper)</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+        Adicione qualquer portal de emprego nacional ou internacional configurando seletores CSS padrão. O sistema fará scraping dinâmico em tempo real!
+      </p>
+
+      <form id="add-source-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div style="grid-column: span 2;">
+          <label for="src-name">Nome do Portal / Empresa</label>
+          <input type="text" id="src-name" placeholder="Ex: Expresso Emprego, Portal de Emprego XPTO" required>
+        </div>
+
+        <div style="grid-column: span 2;">
+          <label for="src-url">URL de Pesquisa (Use {keyword} e {region} para parâmetros)</label>
+          <input type="text" id="src-url" placeholder="Ex: https://portal.com/search?q={keyword}&l={region}" required>
+        </div>
+
+        <div>
+          <label for="src-card-sel">Seletor CSS do Cartão/Vaga</label>
+          <input type="text" id="src-card-sel" placeholder="Ex: .job-item, article.post" required>
+        </div>
+
+        <div>
+          <label for="src-title-sel">Seletor CSS do Link do Título (relativo ao Cartão)</label>
+          <input type="text" id="src-title-sel" placeholder="Ex: h2.title a, .job-link" required>
+        </div>
+
+        <div>
+          <label for="src-company-sel">Seletor CSS da Empresa (Opcional)</label>
+          <input type="text" id="src-company-sel" placeholder="Ex: .company-name, .employer">
+        </div>
+
+        <div>
+          <label for="src-location-sel">Seletor CSS da Localização (Opcional)</label>
+          <input type="text" id="src-location-sel" placeholder="Ex: .location, .place">
+        </div>
+
+        <div style="grid-column: span 2; margin-top: 10px;">
+          <button type="submit" class="btn">➕ Registar Novo Scraper Dinâmico</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- CARD 2: LISTAGEM DE FONTES -->
+    <div class="card fade-in-up">
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 16px;">📂 Scrapers Personalizados Ativos</h2>
+      
+      <div id="custom-sources-list">
+        <p style="font-size: 13px; color: var(--text-muted);">A carregar fontes da base de dados...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- TAB 4: COFRE DE CREDENCIAIS (LOCALSTORAGE) -->
+<!-- ========================================== -->
+<div id="tab-vault" class="tab-content" style="display: none;">
+  <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+    <!-- CARD 1: ADICIONAR CREDENCIAIS -->
+    <div class="card fade-in-up">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; margin: 0;">🔒 Cofre de Credenciais Local</h2>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.2); font-size: 11px;">🔒 Totalmente Encriptado e Local</span>
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+        Guarde os seus dados de acesso (login e registo) de vários portais de emprego. Estes dados são armazenados de forma **100% segura no seu browser (localStorage)** e nunca são transmitidos para o servidor, garantindo privacidade total.
+      </p>
+
+      <form id="vault-form" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: end;">
+        <div>
+          <label for="vault-portal">Portal de Emprego</label>
+          <select id="vault-portal" required>
+            <option value="NetEmpregos">NetEmpregos</option>
+            <option value="ITJobs">ITJobs</option>
+            <option value="LandingJobs">LandingJobs</option>
+            <option value="Carga de Trabalhos">Carga de Trabalhos</option>
+            <option value="Alerta Emprego">Alerta Emprego</option>
+            <option value="Sapo Emprego">Sapo Emprego</option>
+            <option value="Indeed">Indeed</option>
+            <option value="Glassdoor">Glassdoor</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="vault-user">Nome de Utilizador / E-mail</label>
+          <input type="text" id="vault-user" placeholder="utilizador@exemplo.com" required>
+        </div>
+
+        <div>
+          <label for="vault-pass">Palavra-passe</label>
+          <div style="position: relative; display: flex; align-items: center;">
+            <input type="password" id="vault-pass" placeholder="••••••••" style="padding-right: 40px;" required>
+            <button type="button" id="btn-toggle-pass" style="position: absolute; right: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px;">👁️</button>
+          </div>
+        </div>
+
+        <div style="grid-column: span 3; margin-top: 10px;">
+          <button type="submit" class="btn">💾 Guardar Credenciais no Cofre</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- CARD 2: LISTAGEM DE CREDENCIAIS -->
+    <div class="card fade-in-up">
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 12px;">🔑 Credenciais Ativas</h2>
+      <div id="vault-list-container">
+        <p style="font-size: 13px; color: var(--text-muted);">Nenhuma credencial guardada neste dispositivo.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentPage = 1;
+  let currentCvPage = 1;
+  let customSourcesList = [];
+  let cvProfilesList = [];
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // --- LÓGICA DE TABS (SPA) ---
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabContents = document.querySelectorAll(".tab-content");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabButtons.forEach(b => b.classList.remove("active"));
+        tabContents.forEach(c => c.style.display = "none");
+
+        btn.classList.add("active");
+        const targetTab = btn.getAttribute("data-tab");
+        document.getElementById(targetTab).style.display = "block";
+      });
+    });
+    // --- CARREGAMENTO INICIAL DE DADOS ---
+    loadCustomSources();
+    loadCvProfiles();
+    renderVaultCredentials();
+
+    // --- AGREGADOR PADRÃO (TAB 1) ---
+    const searchForm = document.getElementById("search-form");
+    const jobsContainer = document.getElementById("jobs-container");
+    const resultsInfo = document.getElementById("results-info");
+    const infoCount = document.getElementById("info-count");
+    const infoFilters = document.getElementById("info-filters");
+    const pagination = document.getElementById("pagination");
+    const startSearchBtn = document.getElementById("start-search-btn");
+
+    if (startSearchBtn) {
+      startSearchBtn.addEventListener("click", () => {
+        document.getElementById("keyword").value = "developer";
+        document.getElementById("region").value = "Lisboa";
+        triggerSearch(1);
+      });
+    }
+
+    searchForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      triggerSearch(1);
+    });
+
+    function triggerSearch(page) {
+      currentPage = page;
+      const keyword = document.getElementById("keyword").value;
+      const region = document.getElementById("region").value;
+      const contractType = document.getElementById("contract_type").value;
+      const modality = document.getElementById("modality").value;
+      const remoteOnly = document.getElementById("remote_only").checked;
+      
+      const selectedSources = [];
+      document.querySelectorAll(".source-cb:checked").forEach(cb => {
+        selectedSources.push(cb.value);
+      });
+      const sourcesParam = selectedSources.length > 0 ? selectedSources.join(",") : "";
+
+      // Loader
+      renderSkeletons(jobsContainer);
+      resultsInfo.style.display = "block";
+      infoCount.textContent = "Pesquisando...";
+      infoFilters.textContent = `A puxar ofertas em tempo real de ${selectedSources.length || 'todas as'} fontes...`;
+      pagination.style.display = "none";
+
+      const queryParams = new URLSearchParams({
+        keyword,
+        region,
+        contract_type: contractType,
+        modality,
+        remote_only: remoteOnly,
+        sources: sourcesParam,
+        page
+      });
+
+      fetch(`/api/search?${queryParams.toString()}`)
+        .then(r => r.json())
+        .then(data => {
+          renderJobsList(jobsContainer, data.jobs, false);
+          updateInfoBar(infoCount, infoFilters, data.total, keyword, region, modality, remoteOnly, false);
+          updatePagination(pagination, data.total, data.page, data.total_pages, (p) => triggerSearch(p));
+          
+          // Scroll suave para os resultados em mobile
+          if (window.innerWidth < 900) {
+            resultsInfo.scrollIntoView({ behavior: "smooth" });
+          }
+        })
+        .catch(err => {
+          console.error("Erro na pesquisa:", err);
+          jobsContainer.innerHTML = `<div class='card' style='border-color:rgba(239,68,68,0.3); text-align:center;'><h3 style='color:#ef4444;'>Erro de Ligação</h3><p style='color:var(--text-muted);font-size:13px;margin-top:6px;'>Falha ao aceder ao servidor de pesquisa. Tente de novo.</p></div>`;
+        });
+    }
+
+    // --- ANÁLISE DE CV (TAB 2) ---
+    const cvForm = document.getElementById("cv-form");
+    const cvSelect = document.getElementById("cv-profile-select");
+    const cvTextInput = document.getElementById("cv-text-input");
+    const cvNameInput = document.getElementById("cv-profile-name");
+    const btnSaveCv = document.getElementById("btn-save-cv");
+    const btnDeleteCv = document.getElementById("btn-delete-cv");
+    const btnSearchCv = document.getElementById("btn-search-cv");
+    
+    const cvJobsContainer = document.getElementById("cv-jobs-container");
+    const cvResultsInfo = document.getElementById("cv-results-info");
+    const cvInfoCount = document.getElementById("cv-info-count");
+    const cvPagination = document.getElementById("cv-pagination");
+
+    cvSelect.addEventListener("change", () => {
+      const idx = cvSelect.selectedIndex;
+      if (idx === 0 || !cvProfilesList.length) {
+        cvTextInput.value = "";
+        cvNameInput.value = "";
+        btnDeleteCv.disabled = true;
+      } else {
+        const profile = cvProfilesList[idx - 1];
+        cvTextInput.value = profile.cv_text;
+        cvNameInput.value = profile.name;
+        btnDeleteCv.disabled = false;
+      }
+    });
+
+    btnSaveCv.addEventListener("click", () => {
+      const name = cvNameInput.value.trim();
+      const text = cvTextInput.value.trim();
+      if (!name || !text) {
+        alert("Preencha o Nome do Perfil e cole o Texto do CV antes de guardar.");
+        return;
+      }
+
+      fetch("/api/cv-profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, cv_text: text })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          alert("Perfil de CV gravado na base de dados SQLite com sucesso!");
+          loadCvProfiles();
+        } else {
+          alert("Erro ao gravar perfil: " + (data.error || "erro desconhecido"));
+        }
+      });
+    });
+
+    btnDeleteCv.addEventListener("click", () => {
+      const idx = cvSelect.selectedIndex;
+      if (idx === 0) return;
+      const profile = cvProfilesList[idx - 1];
+
+      if (!confirm(`Tem a certeza que deseja eliminar o perfil "${profile.name}"?`)) return;
+
+      fetch(`/api/cv-profiles/${profile.id}`, { method: "DELETE" })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          alert("Perfil de CV eliminado com sucesso.");
+          loadCvProfiles();
+        } else {
+          alert("Erro ao eliminar perfil.");
+        }
+      });
+    });
+
+    btnSearchCv.addEventListener("click", () => {
+      const cvText = cvTextInput.value.trim();
+      if (!cvText) {
+        alert("Introduza o texto do seu CV para a IA fazer a análise.");
+        return;
+      }
+      triggerCvSearch(1);
+    });
+
+    function triggerCvSearch(page) {
+      currentCvPage = page;
+      const cvText = cvTextInput.value.trim();
+      const keyword = document.getElementById("cv-keyword").value.trim();
+      const region = document.getElementById("cv-region").value.trim();
+      
+      const selectedSources = [];
+      document.querySelectorAll(".source-cb:checked").forEach(cb => {
+        selectedSources.push(cb.value);
+      });
+
+      renderSkeletons(cvJobsContainer);
+      cvResultsInfo.style.display = "block";
+      cvInfoCount.textContent = "A analisar...";
+      cvPagination.style.display = "none";
+
+      fetch("/api/search-cv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cv_text: cvText,
+          keyword,
+          region,
+          sources: selectedSources,
+          page
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          cvJobsContainer.innerHTML = `<div class='card' style='border-color:rgba(239,68,68,0.3); text-align:center;'><h3 style='color:#ef4444;'>Erro na Análise</h3><p style='color:var(--text-muted);font-size:13px;margin-top:6px;'>${data.error}</p></div>`;
+          return;
+        }
+        renderJobsList(cvJobsContainer, data.jobs, true);
+        updateInfoBar(cvInfoCount, null, data.total, null, null, null, null, true);
+        updatePagination(cvPagination, data.total, data.page, data.total_pages, (p) => triggerCvSearch(p));
+        
+        // Scroll suave para os resultados em mobile
+        if (window.innerWidth < 900) {
+          cvResultsInfo.scrollIntoView({ behavior: "smooth" });
+        }
+      })
+      .catch(err => {
+        console.error("Erro na análise:", err);
+      });
+    }
+
+    // --- FONTES PERSONALIZADAS (TAB 3) ---
+    const addSourceForm = document.getElementById("add-source-form");
+    addSourceForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById("src-name").value.trim();
+      const search_url = document.getElementById("src-url").value.trim();
+      const card_selector = document.getElementById("src-card-sel").value.trim();
+      const title_selector = document.getElementById("src-title-sel").value.trim();
+      const company_selector = document.getElementById("src-company-sel").value.trim();
+      const location_selector = document.getElementById("src-location-sel").value.trim();
+
+      fetch("/api/sources", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, search_url, card_selector, title_selector, company_selector, location_selector })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          alert("Fonte personalizada adicionada com sucesso!");
+          addSourceForm.reset();
+          loadCustomSources();
+        } else {
+          alert("Erro: " + (data.error || "erro desconhecido"));
+        }
+      });
+    });
+
+    // --- COFRE DE CREDENCIAIS (TAB 4) ---
+    const vaultForm = document.getElementById("vault-form");
+    const btnTogglePass = document.getElementById("btn-toggle-pass");
+    const vaultPass = document.getElementById("vault-pass");
+
+    btnTogglePass.addEventListener("click", () => {
+      if (vaultPass.type === "password") {
+        vaultPass.type = "text";
+        btnTogglePass.textContent = "🙈";
+      } else {
+        vaultPass.type = "password";
+        btnTogglePass.textContent = "👁️";
+      }
+    });
+
+    vaultForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const portal = document.getElementById("vault-portal").value;
+      const user = document.getElementById("vault-user").value.trim();
+      const pass = vaultPass.value;
+
+      let credentials = JSON.parse(localStorage.getItem("jobhunter_credentials") || "[]");
+      
+      // Substituir se já existe
+      credentials = credentials.filter(c => c.portal !== portal);
+      credentials.push({ portal, user, pass });
+      
+      localStorage.setItem("jobhunter_credentials", JSON.stringify(credentials));
+      alert("Credenciais salvas de forma 100% segura no seu browser!");
+      vaultForm.reset();
+      renderVaultCredentials();
+    });
+
+    // --- FUNÇÕES DE AUXÍLIO E RENDERIZAÇÃO ---
+
+    function loadCustomSources() {
+      fetch("/api/sources")
+        .then(r => r.json())
+        .then(data => {
+          customSourcesList = data;
+          
+          // 1. Atualizar a listagem na Tab 3
+          const container = document.getElementById("custom-sources-list");
+          if (customSourcesList.length === 0) {
+            container.innerHTML = `<p style="font-size: 13px; color: var(--text-dim);">Ainda não configurou nenhuma fonte personalizada.</p>`;
+          } else {
+            let html = `
+              <div style="overflow-x:auto;">
+                <table class="vault-table">
+                  <thead>
+                    <tr>
+                      <th>Portal/Empresa</th>
+                      <th>URL de Pesquisa</th>
+                      <th>Seletor CSS</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+            `;
+            customSourcesList.forEach(src => {
+              html += `
+                <tr>
+                  <td><strong>${src.name}</strong></td>
+                  <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><code>${src.search_url}</code></td>
+                  <td><code>${src.card_selector}</code></td>
+                  <td>
+                    <button class="btn btn-secondary btn-delete-src" data-name="${src.name}" style="padding: 6px 12px; color: #ef4444; border-color: rgba(239,68,68,0.15); font-size:12px;">🗑️ Remover</button>
+                  </td>
+                </tr>
+              `;
+            });
+            html += `</tbody></table></div>`;
+            container.innerHTML = html;
+
+            // Adicionar event listeners
+            document.querySelectorAll(".btn-delete-src").forEach(btn => {
+              btn.addEventListener("click", () => {
+                const name = btn.getAttribute("data-name");
+                if (confirm(`Tem a certeza que deseja eliminar o scraper dinâmico da fonte "${name}"?`)) {
+                  fetch(`/api/sources/${name}`, { method: "DELETE" })
+                    .then(r => r.json())
+                    .then(res => {
+                      if (res.success) {
+                        alert("Scraper removido com sucesso.");
+                        loadCustomSources();
+                      }
+                    });
+                }
+              });
+            });
+          }
+
+          // 2. Atualizar checkboxes do menu lateral de pesquisa da Tab 1 e Tab 4 dropdown
+          const checkboxContainer = document.getElementById("sources-checkbox-group");
+          const vaultSelect = document.getElementById("vault-portal");
+          
+          // Repopular checkboxes com as padrão + personalizadas
+          const defaultSources = ["NetEmpregos", "ITJobs", "LandingJobs", "Carga de Trabalhos", "Alerta Emprego", "Sapo Emprego", "Indeed", "Glassdoor", "Jobted", "JobLeads"];
+          
+          let cbHtml = "";
+          defaultSources.forEach(s => {
+            cbHtml += `<label class="checkbox-label"><input type="checkbox" class="source-cb" value="${s}" checked> ${s.replace("LandingJobs", "Landing.jobs")}</label>`;
+          });
+          
+          customSourcesList.forEach(src => {
+            cbHtml += `<label class="checkbox-label" style="color:#facc15;"><input type="checkbox" class="source-cb" value="${src.name}" checked> ⭐️ ${src.name}</label>`;
+          });
+          checkboxContainer.innerHTML = cbHtml;
+
+          // Repopular dropdown do cofre
+          let optHtml = "";
+          defaultSources.concat(customSourcesList.map(s => s.name)).forEach(s => {
+            optHtml += `<option value="${s}">${s}</option>`;
+          });
+          vaultSelect.innerHTML = optHtml;
+        });
+    }
+
+    function loadCvProfiles() {
+      fetch("/api/cv-profiles")
+        .then(r => r.json())
+        .then(data => {
+          cvProfilesList = data;
+          cvSelect.innerHTML = '<option value="">-- Criar Novo Perfil --</option>';
+          cvProfilesList.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.id;
+            opt.textContent = p.name;
+            cvSelect.appendChild(opt);
+          });
+          cvTextInput.value = "";
+          cvNameInput.value = "";
+          btnDeleteCv.disabled = true;
+        });
+    }
+
+    function renderVaultCredentials() {
+      const container = document.getElementById("vault-list-container");
+      const credentials = JSON.parse(localStorage.getItem("jobhunter_credentials") || "[]");
+
+      if (credentials.length === 0) {
+        container.innerHTML = `<p style="font-size: 13px; color: var(--text-dim); padding: 10px 0;">Não tem dados de acesso guardados neste cofre local.</p>`;
+        return;
+      }
+
+      let html = `
+        <table class="vault-table">
+          <thead>
+            <tr>
+              <th>Portal/Empresa</th>
+              <th>Utilizador/E-mail</th>
+              <th>Palavra-passe</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      credentials.forEach((c, idx) => {
+        html += `
+          <tr>
+            <td><strong>${c.portal}</strong></td>
+            <td><code>${c.user}</code></td>
+            <td>
+              <span class="masked-pass" id="pass-mask-${idx}">••••••••</span>
+              <span class="raw-pass" id="pass-raw-${idx}" style="display:none; font-family:monospace; color:#34d399;">${c.pass}</span>
+            </td>
+            <td>
+              <button class="btn btn-secondary btn-show-pass" data-idx="${idx}" style="padding: 4px 8px; font-size:11px;">👁️ Ver</button>
+              <button class="btn btn-secondary btn-delete-cred" data-portal="${c.portal}" style="padding: 4px 8px; font-size:11px; color:#ef4444; border-color:rgba(239,68,68,0.15);">🗑️ Remover</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+
+      // Event Listeners
+      document.querySelectorAll(".btn-show-pass").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = btn.getAttribute("data-idx");
+          const mask = document.getElementById(`pass-mask-${idx}`);
+          const raw = document.getElementById(`pass-raw-${idx}`);
+          if (raw.style.display === "none") {
+            raw.style.display = "inline";
+            mask.style.display = "none";
+            btn.textContent = "🙈 Ocultar";
+          } else {
+            raw.style.display = "none";
+            mask.style.display = "inline";
+            btn.textContent = "👁️ Ver";
+          }
+        });
+      });
+
+      document.querySelectorAll(".btn-delete-cred").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const portal = btn.getAttribute("data-portal");
+          if (confirm(`Pretende eliminar as credenciais guardadas para o portal "${portal}"?`)) {
+            let creds = JSON.parse(localStorage.getItem("jobhunter_credentials") || "[]");
+            creds = creds.filter(c => c.portal !== portal);
+            localStorage.setItem("jobhunter_credentials", JSON.stringify(creds));
+            renderVaultCredentials();
+          }
+        });
+      });
+    }
+
+    function renderSkeletons(targetElement) {
+      let skeletonsHtml = "";
+      for (let i = 0; i < 4; i++) {
+        skeletonsHtml += `
+          <div class="skeleton-card">
+            <div class="shimmer-bar" style="height: 22px; width: 55%; margin-bottom: 6px;"></div>
+            <div class="shimmer-bar" style="height: 14px; width: 35%; margin-bottom: 12px;"></div>
+            <div class="shimmer-bar" style="height: 28px; width: 20%; border-radius: 8px;"></div>
+          </div>
+        `;
+      }
+      targetElement.innerHTML = skeletonsHtml;
+    }
+
+    function renderJobsList(targetElement, jobs, isCvSearch = false) {
+      if (!jobs || jobs.length === 0) {
+        targetElement.innerHTML = `
+          <div class="card fade-in-up" style="text-align: center; padding: 50px 30px;">
+            <div style="font-size: 40px; margin-bottom: 16px;">🔍</div>
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 18px; color: #ffffff;">Sem resultados</h3>
+            <p style="margin-top: 8px; color: var(--text-muted); font-size: 13px;">Não foram encontradas ofertas de emprego com estes filtros.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let jobsHtml = "";
+      jobs.forEach((job, index) => {
+        // Obter a classe da fonte
+        let badgeClass = "badge-source";
+        const sourceLower = (job.source || "").toLowerCase().replace(/\s/g, "");
+        if (sourceLower.includes("netempregos")) badgeClass = "badge-netempregos";
+        else if (sourceLower.includes("itjobs")) badgeClass = "badge-itjobs";
+        else if (sourceLower.includes("landingjobs")) badgeClass = "badge-landingjobs";
+        else if (sourceLower.includes("cargadetrabalhos")) badgeClass = "badge-cargadetrabalhos";
+        else if (sourceLower.includes("alertaemprego")) badgeClass = "badge-alertaemprego";
+        else if (sourceLower.includes("sapo")) badgeClass = "badge-sapo";
+        else if (customSourcesList.some(s => s.name.toLowerCase() === sourceLower)) badgeClass = "badge-custom";
+
+        // Tags do cartão
+        let tagsHtml = `<span class="badge ${badgeClass}">${job.source}</span>`;
+        if (job.score !== undefined && !isCvSearch) {
+          tagsHtml += ` <span class="badge badge-score">Relevância: ${job.score}</span>`;
+        }
+
+        // Descrição do cartão
+        let descHtml = "";
+        if (job.description) {
+          descHtml = `<div class="job-card-desc">${job.description}</div>`;
+        } else if (job.date) {
+          descHtml = `<div style="font-size: 12px; color: var(--text-dim); margin-top: 12px;">Publicado em: ${job.date}</div>`;
+        }
+
+        // Match de CV inteligente (IA)
+        let cvMatchHtml = "";
+        if (isCvSearch && job.cv_match !== undefined) {
+          const matchPercent = Math.round(job.cv_match * 100);
+          let matchColor = "#ef4444"; // Vermelho
+          let matchGrad = "linear-gradient(to right, #ef4444, #f97316)";
+          if (matchPercent >= 75) {
+            matchColor = "#10b981"; // Verde
+            matchGrad = "linear-gradient(to right, #3b82f6, #10b981)";
+          } else if (matchPercent >= 45) {
+            matchColor = "#eab308"; // Amarelo
+            matchGrad = "linear-gradient(to right, #f97316, #eab308)";
+          }
+          
+          cvMatchHtml = `
+            <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.03);">
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px; color:var(--text-muted);">
+                <span>Compatibilidade IA</span>
+                <span style="font-weight:600; color:${matchColor};">${matchPercent}%</span>
+              </div>
+              <div style="height:6px; background:rgba(255,255,255,0.04); border-radius:3px; overflow:hidden;">
+                <div style="height:100%; width:${matchPercent}%; background:${matchGrad}; border-radius:3px;"></div>
+              </div>
+            </div>
+          `;
+        }
+
+        jobsHtml += `
+          <div class="job-card fade-in-up" style="animation-delay: ${index * 0.05}s;">
+            <div class="job-card-header">
+              <div>
+                <h3 class="job-card-title">${job.title}</h3>
+                <span class="job-card-company">${job.company || 'Empresa Confidencial'}</span>
+                <div class="job-card-location">
+                  <span>📍</span> ${job.location || 'Portugal'}
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:end; gap:8px;">
+                ${tagsHtml}
+              </div>
+            </div>
+            ${descHtml}
+            ${cvMatchHtml}
+            <div class="job-card-footer">
+              <a href="${job.link}" target="_blank" class="job-card-link">
+                Ver vaga completa <span>↗</span>
+              </a>
+              <span style="font-size: 11px; color: var(--text-dim);">Abre em nova aba</span>
+            </div>
+          </div>
+        `;
+      });
+
+      targetElement.innerHTML = jobsHtml;
+    }
+
+    function updateInfoBar(countEl, filtersEl, total, keyword, region, modality, remoteOnly, isCv = false) {
+      countEl.textContent = `${total} vagas`;
+      countEl.className = "badge badge-score";
+      countEl.style.background = "";
+      countEl.style.color = "";
+      countEl.style.borderColor = "";
+
+      if (isCv) return; // CV info bar has its own description
+
+      let filtersStr = "";
+      if (keyword) filtersStr += `Palavra-chave: "<strong>${keyword}</strong>" `;
+      if (region) filtersStr += `· Região: "<strong>${region}</strong>" `;
+      if (modality) {
+        const modMap = { remote: "Remoto", hybrid: "Híbrido", onsite: "Presencial" };
+        filtersStr += `· Modalidade: "<strong>${modMap[modality]}</strong>" `;
+      }
+      if (remoteOnly) filtersStr += `· [Apenas Remoto]`;
+
+      filtersEl.innerHTML = filtersStr || "Todas as vagas encontradas";
+    }
+
+    function updatePagination(paginationEl, total, page, totalPages, searchCallback) {
+      if (totalPages <= 1) {
+        paginationEl.style.display = "none";
+        return;
+      }
+
+      paginationEl.style.display = "flex";
+      let paginationHtml = "";
+
+      paginationHtml += `
+        <button class="page-btn" ${page === 1 ? 'disabled' : ''} data-page="${page - 1}">
+          &laquo; Anterior
+        </button>
+      `;
+
+      const maxButtons = 5;
+      let startPage = Math.max(1, page - 2);
+      let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+      
+      if (endPage - startPage < maxButtons - 1) {
+        startPage = Math.max(1, endPage - maxButtons + 1);
+      }
+
+      for (let p = startPage; p <= endPage; p++) {
+        paginationHtml += `
+          <button class="page-btn ${p === page ? 'active' : ''}" data-page="${p}">
+            ${p}
+          </button>
+        `;
+      }
+
+      paginationHtml += `
+        <button class="page-btn" ${page === totalPages ? 'disabled' : ''} data-page="${page + 1}">
+          Próxima &raquo;
+        </button>
+      `;
+
+      paginationEl.innerHTML = paginationHtml;
+
+      paginationEl.querySelectorAll(".page-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const targetPage = parseInt(btn.getAttribute("data-page"));
+          searchCallback(targetPage);
+          document.querySelector(".tabs-nav").scrollIntoView({ behavior: "smooth" });
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}
